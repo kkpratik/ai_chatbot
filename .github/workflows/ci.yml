@@ -7,12 +7,15 @@ on:
     branches: [ main ]
 
 jobs:
-  hello:
+  build:
     runs-on: macos-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Say hello
-        run: echo "CI pipeline is running"
+      - name: Build iOS app
+        run: |
+          xcodebuild build \
+            -scheme ChatWithAI \
+            -destination 'platform=iOS Simulator,name=iPhone 16'
