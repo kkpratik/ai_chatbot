@@ -14,8 +14,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build iOS app
+      - name: Build and test iOS app
         run: |
-          xcodebuild build \
+          xcodebuild test \
             -scheme ChatWithAI \
             -destination 'platform=iOS Simulator,name=iPhone 16'
+
