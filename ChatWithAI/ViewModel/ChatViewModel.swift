@@ -24,30 +24,40 @@ class ChatViewModel: ObservableObject {
     }
     
     func sendMessage()  {
+        Task {
+            await performSendMessage()
+        }
+    }
+    
+    func performSendMessage() async {
         guard canSendMessage else { return }
         let message = Message(text: inputString, sender: .user)
         messages.append(message)
         inputString = ""
-
-        Task {
-            isLoading = true
-            defer { isLoading = false }
-            
-            do {
-                let reply = try await chatService.generateResponse(from: messages)
-                messages.append(reply)
-            } catch {
-                messages.append(getMessage(from: error))
-            }
+        
+        isLoading = true
+        defer { isLoading = false }
+        
+        do {
+            let reply = try await chatService.generateResponse(from: messages)
+            messages.append(reply)
+        } catch {
+            messages.append(getMessage(from: error))
         }
     }
     
     func getMessage(from error: Error) -> Message {
+        let text: String
+        
         if let serviceError = error as? ServiceError {
-            return Message(text: serviceError.message, sender: .ai)
+            text = serviceError.message
+        } else if let networkError = error as? NetworkError {
+            text = networkError.message
         } else {
-            return Message(text: "Something went wrong. Please try again", sender: .ai)
+            text = "Something went wrong. Please try again."
         }
+        
+        return Message(text: text, sender: .ai)
     }
     
     func isValid() -> Bool {
