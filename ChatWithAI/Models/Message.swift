@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Sender: String {
+enum Sender: String, Equatable {
     case user = "user"
     case ai = "assistant"
 }

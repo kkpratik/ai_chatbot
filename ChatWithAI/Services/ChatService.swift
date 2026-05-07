@@ -9,7 +9,7 @@ import Foundation
 
 private let apiKey = ""
 
-enum ServiceError: Error {
+enum ServiceError: Error, Equatable {
     case unsupportedQuery
     case noResponseFound
     case unrecognizedInput

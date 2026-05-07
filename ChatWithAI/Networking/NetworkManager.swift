@@ -7,12 +7,27 @@
 
 import Foundation
 
-enum NetworkError: Error {
+enum NetworkError: Error, Equatable {
     case invalidUrl
     case invalidRequest
     case notFound
     case unauthorised
     case timeOut
+    
+    var message: String {
+        switch self {
+        case .invalidUrl:
+            return "Invalid server URL."
+        case .invalidRequest:
+            return "Something went wrong with the request."
+        case .notFound:
+            return "The requested AI service was not found."
+        case .unauthorised:
+            return "Authorization failed. Please check the API key."
+        case .timeOut:
+            return "The request timed out. Please try again."
+        }
+    }
 }
 
 struct Endpoint {
