@@ -20,7 +20,6 @@ struct ChatView: View {
         .padding()
     }
     
-    
     @ViewBuilder
     func titleView() -> some View {
         HStack {
@@ -35,7 +34,7 @@ struct ChatView: View {
     func chatSection() -> some View {
         ScrollViewReader { proxy in
             ScrollView {
-                VStack(spacing: 18) {
+                VStack(spacing: 10) {
                     ForEach(viewModel.messages) { message in
                         chatBubble(message: message)
                             .id(message.id)
@@ -44,35 +43,55 @@ struct ChatView: View {
                     if viewModel.isLoading {
                         loadingView()
                     }
+                    
+                    Color.clear
+                        .frame(height: 1)
+                        .id("BOTTOM")
                 }
             }
             .frame(maxHeight: .infinity)
             .scrollIndicators(.hidden)
             .onChange(of: viewModel.messages) {
-                if let lastId = viewModel.messages.last?.id {
-                    withAnimation {
-                        proxy.scrollTo(lastId, anchor: .bottom)
-                    }
-                }
+                scrollToBottom(proxy: proxy)
+            }
+            .onChange(of: viewModel.isLoading) {
+                scrollToBottom(proxy: proxy)
             }
         }
     }
-    
+        
     @ViewBuilder
     func chatBubble(message: Message) -> some View {
         HStack {
-            if message.sender == .user { Spacer(minLength: 40) }
+            if message.sender == .user {
+                Spacer(minLength: 8)
+            }
             
-            Text(message.text)
-                .padding(.horizontal, 18)
-                .padding(.vertical, 12)
-                .background {
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(message.sender == .ai ? Color.purple.opacity(0.2) : Color.purple.opacity(0.8))
-                }
+            VStack(alignment: message.sender == .user ? .trailing : .leading, spacing: 8) {
+                Text(message.text)
+                    .multilineTextAlignment(.leading)
+                    .foregroundStyle(message.sender == .user ? .white : .black)
+                
+                Text(message.timestamp.formatted(date: .omitted, time: .shortened))
+                    .font(.caption)
+                    .foregroundColor(.purple)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background {
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(
+                        message.sender == .ai
+                        ? Color.purple.opacity(0.15)
+                        : Color.purple.opacity(0.75)
+                    )
+            }
             
-            if message.sender == .ai { Spacer(minLength: 40) }
+            if message.sender == .ai {
+                Spacer(minLength: 8)
+            }
         }
+        .padding(.horizontal, 6)
     }
     
     @ViewBuilder
@@ -92,7 +111,7 @@ struct ChatView: View {
             }
             .overlay {
                 RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.purple.opacity(0.8), lineWidth: 1)
+                    .stroke(Color.purple.opacity(0.6), lineWidth: 1)
             }
             
             Button {
@@ -101,11 +120,11 @@ struct ChatView: View {
                 Image(systemName: "paperplane.circle")
                     .resizable()
                     .frame(width: 42, height: 42)
-                    .foregroundStyle(viewModel.canSendMessage ? Color.purple.opacity(0.8) : Color.gray)
+                    .foregroundStyle(Color.purple.opacity(0.8))
                 
             }
             .disabled(!viewModel.canSendMessage)
-            
+            .opacity(viewModel.canSendMessage ? 1 : 0.4)
         }
         .frame(maxWidth: .infinity)
         .frame(height: 64)
@@ -114,14 +133,15 @@ struct ChatView: View {
     @ViewBuilder
     func loadingView() -> some View {
         HStack() {
-            Text("Loading...")
-                .padding(.horizontal, 18)
-                .padding(.vertical, 12)
-                .background {
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.purple.opacity(0.2))
-                }
+            TypingIndicatorView()
             Spacer()
+        }
+        .padding(.horizontal, 6)
+    }
+    
+    private func scrollToBottom(proxy: ScrollViewProxy) {
+        withAnimation {
+            proxy.scrollTo("BOTTOM", anchor: .bottom)
         }
     }
 }
