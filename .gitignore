@@ -2,8 +2,17 @@
 #
 # gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
 
+## App Config
+Config.plist
+
 ## User settings
 xcuserdata/
+
+# Derived data
+DerivedData/
+
+# Xcode UI state
+*.xcuserstate
 
 ## Obj-C/Swift specific
 *.hmap

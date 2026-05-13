@@ -7,8 +7,6 @@
 
 import Foundation
 
-private let apiKey = ""
-
 enum ServiceError: Error, Equatable {
     case unsupportedQuery
     case noResponseFound
@@ -30,7 +28,7 @@ enum ServiceError: Error, Equatable {
 struct ServiceConfig {
     static let URLString = "https://openrouter.ai/api/v1/chat/completions"
     static let headers: [String: String] = [
-        "Authorization": "Bearer \(apiKey)",
+        "Authorization": "Bearer \(AppConfig.apiKey)",
         "Content-Type": "application/json"
     ]
 }

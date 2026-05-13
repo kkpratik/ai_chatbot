@@ -23,29 +23,45 @@ class MockNetworkService: Networking {
 }
 
 final class ChatServiceTests: XCTestCase {
-
+    
     func test_chatService_response() async throws {
-        
         let json = """
-            {
-              "choices": [
-                {
-                  "message": { "content": "Hello! How can I help you?" }
-                }
-              ]
-            }
-            """
+           {
+             "choices": [
+               {
+                 "message": {
+                   "role": "assistant",
+                   "content": "Hello! How can I help you?"
+                 }
+               }
+             ]
+           }
+           """
         
         let mock = MockNetworkService()
         mock.mockData = json.data(using: .utf8)
         
         let chatService = ChatService(networkService: mock)
-        let response = try await chatService.generateResponse(from: [Message(text: "Hi", sender: .user)])
         
-        XCTAssertEqual(response.text, "Hello! How can I help you?")
-        XCTAssertEqual(response.sender, Sender.ai)
+        do {
+            let response = try await chatService.generateResponse(
+                from: [
+                    Message(text: "Hi", sender: .user)
+                ]
+            )
+            
+            print("✅ Response text:", response.text)
+            
+            XCTAssertEqual(response.text, "Hello! How can I help you?")
+            XCTAssertEqual(response.sender, .ai)
+            
+        } catch {
+            print("❌ ChatService test failed with error:", error)
+            XCTFail("Expected successful response, but got error: \(error)")
+        }
     }
-
+    
+    
     func test_chatService_whenResponseInvalid_shouldThrowError() async {
         
         let json = """
